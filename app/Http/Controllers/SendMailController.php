@@ -37,15 +37,6 @@ class SendMailController extends Controller
             $message = $request->message;
 
             /* Email SMTP Settings */
-            /*   $mail->SMTPDebug = 0;
-              $mail->isSMTP();
-              $mail->Host = env('MAIL_HOST');
-              $mail->SMTPAuth = true;
-              $mail->Username = env('MAIL_USERNAME');
-              $mail->Password = env('MAIL_PASSWORD');
-              $mail->SMTPSecure = env('MAIL_ENCRYPTION');
-              $mail->Port = env('MAIL_PORT'); */
-
             $mail->isSMTP();
             $mail->Host = 'sandbox.smtp.mailtrap.io';
             $mail->SMTPAuth = true;
