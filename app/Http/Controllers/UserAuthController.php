@@ -42,4 +42,27 @@ class UserAuthController extends Controller
             ], 500);
         }
     }
+    public function register(Request $request)
+    {
+        $request->validate([
+            'name' => ['required', 'string', 'max:255'],
+            'email' => ['required', 'string', 'email', 'max:255'],
+            'password' => ['required', 'confirmed'],
+        ]);
+        try {
+            User::create([
+                'name' => $request->name,
+                'email' => $request->email,
+                'password' => Hash::make($request->password),
+            ]);
+            return response()->json([
+                'status' => true,
+                'message' => 'User has been created successfully.'
+            ], 201);
+        } catch (Exception $e) {
+            return response()->json([
+                'errors' => [$e->getMessage()]
+            ], 422);
+        }
+    }
 }
