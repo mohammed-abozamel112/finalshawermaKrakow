@@ -24,10 +24,9 @@ use Illuminate\Support\Facades\Route;
 Route::middleware('auth:sanctum')->get('/user', function (Request $request) {
     return $request->user();
 });
+
 Route::post('login', [UserAuthController::class, 'login']); //login request
-Route::post('register', [UserAuthController::class, 'register']); //add new  user 
-
-
+Route::post('register', [UserAuthController::class, 'register']); //add new  user
 
 Route::apiResource('products', ProductController::class); // show All products
 Route::apiResource('images', ImageController::class); // Show all Images
