@@ -3,7 +3,9 @@
 namespace App\Http\Controllers;
 
 use App\Models\Subscription;
+use Exception;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
 
 class SubscriptionController extends Controller
 {
@@ -12,10 +14,25 @@ class SubscriptionController extends Controller
      */
     public function index()
     {
-        $subscriptions = Subscription::all();
-        return response()->json(
-            $subscriptions
-        );
+        if (!Auth::check()) {
+            // If not, return a message
+            return response()->json([
+                'status' => 'error',
+                'message' => 'You are not authorized to access this page.'
+            ], 401);
+        }
+        try {
+            $subscriptions = Subscription::all();
+            return response()->json(
+                $subscriptions
+            );
+        } catch (Exception $e) {
+            return response()->json([
+                "status" => "error",
+                "message" => "Error occurred: " . $e->getMessage()
+            ]);
+        }
+
     }
 
     /**
