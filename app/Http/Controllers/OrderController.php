@@ -41,6 +41,29 @@ class OrderController extends Controller
             return response()->json(['message' => $e->getMessage()], 400);
         }
     }
+    // show single order
+    public function showsingele($id)
+    {
+        // Check if the user is authenticated
+        if (!Auth::check()) {
+            // If not, return a message
+            return response()->json([
+                'status' => 'error',
+                'message' => 'You are not authorized to access this page.'
+            ], 401);
+        }
+        try {
+            $order = Order::findOrFail($id);
+            return response()->json([
+                "order" => new OrderResource($order),
+                "status" => true,
+            ], 200);
+        } catch (Exception $e) {
+            return response()->json([
+                "message" => "Order Not Found!"
+            ], 404);
+        }
+    }
     // Tracking function
     function show(Request $request)
     {
@@ -162,8 +185,9 @@ class OrderController extends Controller
                      'confirmation_method' => 'manual',
                      'confirm' => true,
                  ]); */
-                $stripe = new \Stripe\StripeClient(env('STRIPE_SECRET'));
-                // $stripe = new \Stripe\Stripe::setApiKey(env('STRIPE_SECRET'));
+
+                // $stripe = new \Stripe\StripeClient(env('STRIPE_SECRET'));
+                $stripe = \Stripe\Stripe::setApiKey(env('STRIPE_SECRET'));
 
                 // Create a token from the credit card details
                 $token = Token::create([
@@ -176,24 +200,33 @@ class OrderController extends Controller
                 ]);
 
                 // Create a payment method object using Stripe's API
-                $paymentMethod = $stripe->paymentMethods->create([
+                $stripe->paymentMethods->create([
                     'type' => 'card',
                     'card' => [
                         'token' => $token->id,
                     ],
                 ]);
 
-                $paymentIntent = $stripe->paymentIntents->create([
+                $stripe->paymentIntents->create([
                     'amount' => round($total_with_shipping * 100),
                     'currency' => 'usd',
+                    'source' => $token->id,
                     'receipt_email' => $request->checkout_email,
                     'confirmation_method' => 'manual',
                     'confirm' => true,
                 ]);
 
-                // session()->flash('success', 'Payment Intent created successfully');
-                // return response()->json(['clientSecret' => $paymentIntent->client_secret]);
-
+                /*
+                                // Create a payment intent
+                                $stripe->paymentIntents->create([
+                                    'amount' => round($total_with_shipping * 100), // Amount in cents
+                                    'currency' => 'usd',
+                                    'payment_method_types' => ['card'],
+                                    'confirmation_method' => 'manual',
+                                    'confirm' => true,
+                                    'payment_method' => $token->id, // Use token ID directly as payment method
+                                    'receipt_email' => $request->checkout_email,
+                                ]); */
                 //end of payment
 
                 // Create order
@@ -419,6 +452,14 @@ class OrderController extends Controller
      */
     public function update(Request $request, $id)
     {
+        // Check if the user is authenticated
+        if (!Auth::check()) {
+            // If not, return a message
+            return response()->json([
+                'status' => 'error',
+                'message' => 'You are not authorized to access this page.'
+            ], 401);
+        }
         // Find the order by its
         $order = Order::findOrFail($id);
 

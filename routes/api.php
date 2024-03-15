@@ -28,6 +28,8 @@ Route::middleware('auth:sanctum')->get('/user', function (Request $request) {
 
 Route::post('login', [UserAuthController::class, 'login']); //login request
 Route::post('register', [UserAuthController::class, 'register']); //add new  user
+Route::get('show', [UserAuthController::class, 'showuser']); // get all users data
+Route::post('delete/{id}', [UserAuthController::class, 'destroy']);// delete user by id
 
 Route::apiResource('products', ProductController::class); // show All products
 Route::apiResource('images', ImageController::class); // Show all Images
@@ -40,7 +42,7 @@ Route::post('sendemail', [SendMailController::class, 'store']); //contact page s
 Route::prefix('subscription')->group(function () {
     // subscription
     Route::controller(SubscriptionController::class)->group(function () {
-        Route::get('index', 'index'); //show all  subscriptions in dashboard
+        Route::get('index', 'index')->middleware('api'); //show all  subscriptions in dashboard
         Route::post('store', 'store'); //add  new subscription
     });
 });
@@ -52,6 +54,7 @@ Route::prefix('orders')->group(function () {
         Route::post('show', 'show'); // Tracking Order
         Route::post('store', 'store'); // add new order
         Route::post('update/{id}', 'update'); // update order by id
+        Route::post('showsingele/{id}', 'showsingele'); // update order by id
         Route::post('delete/{id}', 'destroy'); // delete order from database  by id
     });
 });
