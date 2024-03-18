@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Http\Resources\SubscriptionResource;
 use App\Models\Subscription;
 use Exception;
 use Illuminate\Http\Request;
@@ -22,10 +23,21 @@ class SubscriptionController extends Controller
             ], 401);
         }
         try {
-            $subscriptions = Subscription::all();
-            return response()->json(
-                $subscriptions
-            );
+            // Fetch subscriptions with pagination
+            $subscriptions = Subscription::latest()->paginate(10);
+
+            // Return a paginated collection of subscriptions
+            return response()->json([
+                'status' => 'success',
+                'subscriptions' => SubscriptionResource::collection($subscriptions),
+                'pagination' => [
+                    'current_page' => $subscriptions->currentPage(),
+                    'last_page' => $subscriptions->lastPage(),
+                    'next_page_url' => $subscriptions->nextPageUrl(),
+                    'prev_page_url' => $subscriptions->previousPageUrl(),
+                    'total' => $subscriptions->total(),
+                ],
+            ]);
         } catch (Exception $e) {
             return response()->json([
                 "status" => "error",

@@ -30,17 +30,25 @@ class OrderController extends Controller
         }
         try {
             // If the user is authenticated, proceed with the function logic
-            $orders = Order::all();
+            $orders = Order::orderByDesc('created_at')->paginate(10);
 
-            // Return a collection of orders
+            // Return a paginated collection of orders
             return response()->json([
                 'status' => 'success',
-                'orders' => OrderResource::collection($orders)
+                'orders' => OrderResource::collection($orders),
+                'pagination' => [
+                    'current_page' => $orders->currentPage(),
+                    'last_page' => $orders->lastPage(),
+                    'next_page_url' => $orders->nextPageUrl(),
+                    'prev_page_url' => $orders->previousPageUrl(),
+                    'total' => $orders->total(),
+                ],
             ]);
         } catch (Exception $e) {
             return response()->json(['message' => $e->getMessage()], 400);
         }
     }
+
     // show single order
     public function showsingele($id)
     {
