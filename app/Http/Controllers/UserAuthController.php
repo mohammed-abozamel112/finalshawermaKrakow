@@ -53,10 +53,11 @@ class UserAuthController extends Controller
                         'token' => $token,
                         'name' => $name,
                     ], 201);
-                }else{
+                } else {
                     return response()->json([
-                        "status"=>"fail",
-                        "message"=>"Password is incorrect"],403);
+                        "status" => "fail",
+                        "message" => "Password is incorrect"
+                    ], 403);
                 }
             } else {
                 return response()->json([
@@ -106,8 +107,8 @@ class UserAuthController extends Controller
     {
         Auth::logout();
         return response()->json([
-            'status'=> true,
-            'message'=> 'Logged out Successfully'
+            'status' => true,
+            'message' => 'Logged out Successfully'
         ]);
     }
 
