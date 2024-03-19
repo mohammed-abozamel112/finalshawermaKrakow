@@ -101,6 +101,15 @@ class UserAuthController extends Controller
             ], 422);
         }
     }
+    // logout  user from application
+    public function logout()
+    {
+        Auth::logout();
+        return response()->json([
+            'status'=> true,
+            'message'=> 'Logged out Successfully'
+        ]);
+    }
 
     // delete user  by id
     public function destroy($id)
