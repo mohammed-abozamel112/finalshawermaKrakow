@@ -103,9 +103,18 @@ class UserAuthController extends Controller
         }
     }
     // logout  user from application
-    public function logout()
+    public function logout(Request $request)
     {
-        Auth::logout();
+        if (!Auth::check()) {
+            return response()->json([
+                'status' => false,
+                'message' => 'User is not logged in.'
+            ], 401);
+        }
+        
+        $request->user()->tokens()->delete();
+        /* return response()->json('Logged out successfully', 200); */
+
         return response()->json([
             'status' => true,
             'message' => 'Logged out Successfully'
