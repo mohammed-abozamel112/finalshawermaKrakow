@@ -3,11 +3,13 @@
 namespace App\Http\Controllers;
 
 use App\Models\User;
+use App\Rules\MaxUsers;
 use Exception;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Str;
+use Illuminate\Validation\ValidationException;
 
 class UserAuthController extends Controller
 {
@@ -74,11 +76,18 @@ class UserAuthController extends Controller
     }
     public function register(Request $request)
     {
-        $request->validate([
-            'name' => ['required', 'string', 'max:255'],
-            'email' => ['required', 'string', 'email', 'max:255'],
-            'password' => ['required', 'confirmed'],
-        ]);
+        try {
+            $request->validate([
+                'name' => ['required', 'string', 'max:255'],
+                'email' => ['required', 'string', 'email', 'max:255', new MaxUsers(10)],
+                'password' => ['required', 'confirmed'],
+            ]);
+        } catch (ValidationException $e) {
+            return response()->json([
+                'message' => 'The maximum number of users has been reached.',
+            ], 422);
+        }
+        // check  user and make sure its type is superUser
         if (!Auth::check()) {
             // If not, return a message
             return response()->json([
@@ -111,9 +120,8 @@ class UserAuthController extends Controller
                 'message' => 'User is not logged in.'
             ], 401);
         }
-        
+
         $request->user()->tokens()->delete();
-        /* return response()->json('Logged out successfully', 200); */
 
         return response()->json([
             'status' => true,
