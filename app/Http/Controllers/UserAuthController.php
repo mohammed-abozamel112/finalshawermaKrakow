@@ -95,6 +95,14 @@ class UserAuthController extends Controller
                 'message' => 'You are not authorized to access this page.'
             ], 401);
         }
+        $user = Auth::user(); // get the current logged-in user
+
+        if ($user->type !== 'superAdmin') {
+            return response()->json([
+                'status' => 'error',
+                'message' => 'You are not authorized to Add users.'
+            ], 403);
+        }
         try {
             User::create([
                 'name' => $request->name,
@@ -139,15 +147,32 @@ class UserAuthController extends Controller
                 'message' => 'You are not authorized to access this page.'
             ], 401);
         }
+
+        $user = Auth::user(); // get the current logged-in user
+
+        if ($user->type !== 'superAdmin') {
+            return response()->json([
+                'status' => 'error',
+                'message' => 'You are not authorized to delete users.'
+            ], 403);
+        }
+
         if ($id == 1) {
             return response()->json([
                 "message" => "This admin account cannot be deleted."
             ], 403);
         } else {
             try {
-                $user = User::findOrFail($id);
+                $userToDelete = User::findOrFail($id);
 
-                $user->delete();
+                if ($userToDelete->id === $user->id) {
+                    return response()->json([
+                        "status" => false,
+                        "message" => "You cannot delete your own account."
+                    ], 403);
+                }
+
+                $userToDelete->delete();
                 return response()->json([
                     "status" => true,
                     "message" => "User deleted Successfully."
@@ -155,7 +180,7 @@ class UserAuthController extends Controller
             } catch (Exception $e) {
                 return response()->json([
                     "status" => false,
-                    "Message" => "No data found"
+                    "message" => "No data found"
                 ]);
             }
         }
